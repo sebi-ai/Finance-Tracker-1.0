@@ -1,0 +1,520 @@
+/* Add Category Button */
+.add-category-btn {
+    background: #2ecc71;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 24px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-block;
+}
+.add-category-btn:hover {
+    background: #27ae60;
+}
+
+/* Verbesserte Sektionsanzeige */
+.section {
+    animation: fadeIn 0.3s ease-in-out;
+    display: none; /* Standardmäßig ausgeblendet */
+}
+
+.section.active {
+    display: block; /* Nur aktive Sektion anzeigen */
+}
+
+/* Overview wird durch JavaScript initialisiert */
+
+@keyframes fadeIn {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+/* Collapsed sidebar by default, expands on hover */
+.sidebar {
+    width: 60px;
+    background: #222c36;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.10);
+    min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1002;
+    transition: width 0.3s cubic-bezier(.4,0,.2,1);
+    overflow-x: hidden;
+    opacity: 0.98;
+}
+.sidebar:hover {
+    width: 270px;
+}
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 24px 20px 16px 20px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-bottom: 1px solid #2c3e50;
+    white-space: nowrap;
+    /* opacity entfernt, damit das Logo immer sichtbar bleibt */
+}
+.sidebar-title {
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.sidebar:hover .sidebar-title {
+    opacity: 1;
+    transition-delay: 0.15s;
+}
+.sidebar-logo {
+    font-size: 2rem;
+    margin-right: 10px;
+    min-width: 32px;
+    text-align: center;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+.sidebar:hover .sidebar-logo {
+    margin: 0 10px 0 0;
+}
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+}
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-decoration: none;
+    padding: 16px 0;
+    font-size: 1.1rem;
+    border-left: 4px solid transparent;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s, padding 0.2s;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+}
+.sidebar:hover .sidebar-link {
+    padding: 16px 24px;
+    justify-content: flex-start;
+}
+
+.sidebar-link .sidebar-link-text {
+    opacity: 0;
+    margin-left: 0;
+    transition: opacity 0.15s, margin 0.2s;
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
+    display: inline-block;
+}
+.sidebar:hover .sidebar-link .sidebar-link-text {
+    opacity: 1;
+    pointer-events: auto;
+    margin-left: 12px;
+    width: auto;
+    transition-delay: 0.1s;
+}
+.sidebar-link.active,
+.sidebar-link:hover {
+    background: #273142;
+    border-left: 4px solid var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 2px 8px 0 rgba(46,204,113,0.10);
+    transform: scale(1.04);
+}
+/* Main Content next to Sidebar */
+.main-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    padding: 40px 30px;
+    min-width: 0;
+    margin-left: 60px; /* bleibt immer gleich, damit Platz für die schmale Sidebar ist */
+    transition: none;
+}
+
+/* Diese Zeile wurde entfernt, damit sich der Inhalt nicht mehr verschiebt
+.sidebar:hover ~ .main-content {
+    margin-left: 270px;
+}
+*/
+
+@media (max-width: 900px) {
+    .main-layout {
+        flex-direction: column;
+    }
+    .sidebar {
+        flex-direction: row;
+        width: 100%;
+        min-height: unset;
+        position: static;
+        box-shadow: none;
+        border-bottom: 1px solid #2c3e50;
+        height: 60px;
+        transition: height 0.2s;
+    }
+    .sidebar-header {
+        display: none;
+    }
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+    }
+    .sidebar-link {
+        padding: 14px 0;
+        font-size: 1rem;
+        border-left: none;
+        border-bottom: 4px solid transparent;
+        justify-content: center;
+    }
+    .sidebar-link .sidebar-link-text {
+        display: none;
+    }
+    .sidebar-link.active,
+    .sidebar-link:hover {
+        background: #273142;
+        border-bottom: 4px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+}
+
+/* Section visibility */
+:root {
+    --primary-color: #2ecc71;
+    --secondary-color: #e74c3c;
+    --light-color: #f9f9f9;
+    --dark-color: #333;
+    --border-color: #ddd;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: var(--dark-color);
+    line-height: 1.6;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2, h3, h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header {
+    margin-bottom: 40px;
+}
+
+.balance-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+}
+
+.balance {
+    font-size: 2.5rem;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.summary {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.income, .expense {
+    flex: 1;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.income {
+    background-color: rgba(46, 204, 113, 0.1);
+    border-left: 5px solid var(--primary-color);
+}
+
+.expense {
+    background-color: rgba(231, 76, 60, 0.1);
+    border-left: 5px solid var(--secondary-color);
+}
+
+.income h4, #income-total {
+    color: var(--primary-color);
+}
+
+.expense h4, #expense-total {
+    color: var(--secondary-color);
+}
+
+main {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+@media (min-width: 768px) {
+    main {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .charts {
+        grid-column: 1 / -1;
+    }
+}
+
+.add-transaction, .transactions, .chart-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+}
+
+.form-control {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+    display: block;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.filters {
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+@media (min-width: 768px) {
+    .filters {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.list {
+    list-style: none;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.list li.income {
+    border-left: 5px solid var(--primary-color);
+}
+
+.list li.expense {
+    border-left: 5px solid var(--secondary-color);
+}
+
+.transaction-details {
+    flex: 1;
+}
+
+.transaction-amount {
+    font-weight: bold;
+}
+
+.income .transaction-amount {
+    color: var(--primary-color);
+}
+
+.expense .transaction-amount {
+    color: var(--secondary-color);
+}
+
+.transaction-date, .transaction-category {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+.delete-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+}
+
+.charts {
+    margin-top: 20px;
+}
+
+.chart-container {
+    margin-bottom: 30px;
+}
+
+canvas {
+    width: 100%;
+    max-height: 300px;
+}
+
+/* Auth Modal Styles */
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.auth-modal-content {
+    background: #fff;
+    padding: 32px 28px 24px 28px;
+    border-radius: 10px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+    min-width: 320px;
+    max-width: 90vw;
+    text-align: left;
+}
+.auth-modal-content h2 {
+    margin-bottom: 18px;
+    color: #222c36;
+    text-align: center;
+}
+.auth-modal .form-control {
+    margin-bottom: 16px;
+}
+.auth-modal input[type="text"],
+.auth-modal input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+.auth-modal .btn {
+    width: 100%;
+    margin-top: 8px;
+}
+
+/* Category List */
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-item {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.category-item:hover {
+    background: #e8e8e8;
+}
+
+.category-delete-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: background 0.2s;
+}
+
+.category-delete-btn:hover {
+    background: #c0392b;
+}
