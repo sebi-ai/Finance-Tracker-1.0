@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker - GitHub Pages Version</title>
+    <style>
+        /* Reset und Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Login Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .auth-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .auth-content h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+        }
+
+        .switch-form a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        /* Main App */
+        .main-app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-align: center;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .balance-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .balance-item {
+            text-align: center;
+        }
+
+        .balance-item h4 {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .balance-item p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .income {
+            color: #27ae60;
+        }
+
+        .expense {
+            color: #e74c3c;
+        }
+
+        .transaction-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .transaction-form input,
+        .transaction-form select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .add-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            grid-column: 1 / -1;
+        }
+
+        .add-btn:hover {
+            background: #229954;
+        }
+
+        .transactions-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-item:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-info h4 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .transaction-info p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-top: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .chart-card h4 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            border-radius: 5px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .transaction-form {
+                grid-template-columns: 1fr;
+            }
+
+            .balance-amount {
+                font-size: 28px;
+            }
+
+            .balance-summary {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Modal -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-content">
+            <h2 id="authTitle">Anmelden</h2>
+            
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">Benutzername</label>
+                    <input type="text" id="loginUsername" required placeholder="Benutzername eingeben">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Passwort</label>
+                    <input type="password" id="loginPassword" required placeholder="Passwort eingeben">
+                </div>
+                <button type="submit" class="btn">Anmelden</button>
+                <div class="switch-form">
+                    Noch kein Konto? <a href="#" id="showRegister">Hier registrieren</a>
+                </div>
+                <div id="loginError" class="error"></div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="registerUsername">Benutzername</label>
+                    <input type="text" id="registerUsername" required placeholder="Benutzername wählen">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Passwort</label>
+                    <input type="password" id="registerPassword" required placeholder="Passwort wählen">
+                </div>
+                <button type="submit" class="btn">Registrieren</button>
+                <div class="switch-form">
+                    Bereits ein Konto? <a href="#" id="showLogin">Hier anmelden</a>
+                </div>
+                <div id="registerError" class="error"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="main-app">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">💰 Finance Tracker</div>
+                <div class="user-info">
+                    <span>Willkommen, <strong id="currentUsername"></strong>!</span>
+                    <button id="logoutBtn" class="logout-btn">Abmelden</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="dashboard">
+                <!-- Balance Card -->
+                <div class="card balance-card">
+                    <h3>Aktueller Kontostand</h3>
+                    <div class="balance-amount" id="balanceAmount">0,00 €</div>
+                    <div class="balance-summary">
+                        <div class="balance-item">
+                            <h4>EINNAHMEN</h4>
+                            <p id="totalIncome" class="income">0,00 €</p>
+                        </div>
+                        <div class="balance-item">
+                            <h4>AUSGABEN</h4>
+                            <p id="totalExpense" class="expense">0,00 €</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Transaction -->
+                <div class="card">
+                    <h3>Transaktion hinzufügen</h3>
+                    <form id="transactionForm" class="transaction-form">
+                        <input type="text" id="description" placeholder="Beschreibung" required>
+                        <input type="number" id="amount" placeholder="Betrag" step="0.01" required>
+                        <input type="date" id="date" required>
+                        <select id="category" required>
+                            <option value="">Kategorie wählen</option>
+                            <option value="gehalt">Gehalt</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="miete">Miete</option>
+                            <option value="lebensmittel">Lebensmittel</option>
+                            <option value="transport">Transport</option>
+                            <option value="unterhaltung">Unterhaltung</option>
+                            <option value="gesundheit">Gesundheit</option>
+                            <option value="sonstiges">Sonstiges</option>
+                        </select>
+                        <select id="type" required>
+                            <option value="">Typ wählen</option>
+                            <option value="income">Einnahme</option>
+                            <option value="expense">Ausgabe</option>
+                        </select>
+                        <button type="submit" class="add-btn">Transaktion hinzufügen</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="card">
+                <h3>Letzte Transaktionen</h3>
+                <div id="transactionsList" class="transactions-list">
+                    <p style="text-align: center; color: #666; padding: 40px;">
+                        Noch keine Transaktionen vorhanden. Fügen Sie Ihre erste Transaktion hinzu!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h4>Einnahmen vs. Ausgaben</h4>
+                    <div id="incomeExpenseChart" class="chart-placeholder">
+                        Diagramm wird angezeigt, sobald Transaktionen hinzugefügt wurden
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <h4>Ausgaben nach Kategorien</h4>
+                    <div id="categoriesChart" class="chart-placeholder">
+                        Diagramm wird angezeigt, sobald Ausgaben hinzugefügt wurden
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Finance Tracker wird geladen...');
+        
+        // Storage functions
+        function getUsers() {
+            try {
+                return JSON.parse(localStorage.getItem('financeTracker_users') || '{}');
+            } catch (e) {
+                console.error('Fehler beim Laden der Benutzer:', e);
+                return {};
+            }
+        }
+
+        function saveUsers(users) {
+            try {
+                localStorage.setItem('financeTracker_users', JSON.stringify(users));
+            } catch (e) {
+                console.error('Fehler beim Speichern der Benutzer:', e);
+            }
+        }
+
+        function getCurrentUser() {
+            return localStorage.getItem('financeTracker_currentUser');
+        }
+
+        function setCurrentUser(username) {
+            localStorage.setItem('financeTracker_currentUser', username);
+        }
+
+        function getTransactions() {
+            const user = getCurrentUser();
+            if (!user) return [];
+            try {
+                return JSON.parse(localStorage.getItem('financeTracker_transactions_' + user) || '[]');
+            } catch (e) {
+                console.error('Fehler beim Laden der Transaktionen:', e);
+                return [];
+            }
+        }
+
+        function saveTransactions(transactions) {
+            const user = getCurrentUser();
+            if (!user) return;
+            try {
+                localStorage.setItem('financeTracker_transactions_' + user, JSON.stringify(transactions));
+            } catch (e) {
+                console.error('Fehler beim Speichern der Transaktionen:', e);
+            }
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('de-DE');
+        }
+
+        // DOM elements
+        const authModal = document.getElementById('authModal');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const authTitle = document.getElementById('authTitle');
+        const loginError = document.getElementById('loginError');
+        const registerError = document.getElementById('registerError');
+        const currentUsername = document.getElementById('currentUsername');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const transactionForm = document.getElementById('transactionForm');
+        const transactionsList = document.getElementById('transactionsList');
+        const balanceAmount = document.getElementById('balanceAmount');
+        const totalIncome = document.getElementById('totalIncome');
+        const totalExpense = document.getElementById('totalExpense');
+        const dateInput = document.getElementById('date');
+
+        // Set today's date
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+
+        // Authentication functions
+        function showLoginForm() {
+            console.log('Zeige Login-Formular');
+            if (loginForm) loginForm.style.display = 'block';
+            if (registerForm) registerForm.style.display = 'none';
+            if (authTitle) authTitle.textContent = 'Anmelden';
+            clearErrors();
+        }
+
+        function showRegisterForm() {
+            console.log('Zeige Registrierungs-Formular');
+            if (loginForm) loginForm.style.display = 'none';
+            if (registerForm) registerForm.style.display = 'block';
+            if (authTitle) authTitle.textContent = 'Registrieren';
+            clearErrors();
+        }
+
+        function clearErrors() {
+            if (loginError) loginError.style.display = 'none';
+            if (registerError) registerError.style.display = 'none';
+        }
+
+        function showError(element, message) {
+            if (element) {
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+        }
+
+        function login(username, password) {
+            console.log('Login-Versuch für:', username);
+            const users = getUsers();
+            if (users[username] && users[username] === password) {
+                setCurrentUser(username);
+                showMainApp();
+                return true;
+            }
+            return false;
+        }
+
+        function register(username, password) {
+            console.log('Registrierungs-Versuch für:', username);
+            if (!username || !password) {
+                return { success: false, message: 'Bitte Benutzername und Passwort eingeben' };
+            }
+
+            const users = getUsers();
+            if (users[username]) {
+                return { success: false, message: 'Benutzername bereits vergeben' };
+            }
+
+            users[username] = password;
+            saveUsers(users);
+            setCurrentUser(username);
+            showMainApp();
+            return { success: true };
+        }
+
+        function logout() {
+            console.log('Benutzer wird abgemeldet');
+            localStorage.removeItem('financeTracker_currentUser');
+            if (authModal) authModal.style.display = 'flex';
+            if (mainApp) mainApp.style.display = 'none';
+            showLoginForm();
+        }
+
+        function showMainApp() {
+            console.log('Zeige Hauptanwendung für:', getCurrentUser());
+            if (authModal) authModal.style.display = 'none';
+            if (mainApp) mainApp.style.display = 'block';
+            if (currentUsername) currentUsername.textContent = getCurrentUser();
+            loadTransactions();
+            updateBalance();
+            updateCharts();
+        }
+
+        // Transaction functions
+        function addTransaction(description, amount, date, category, type) {
+            console.log('Füge Transaktion hinzu:', { description, amount, date, category, type });
+            const transactions = getTransactions();
+            const transaction = {
+                id: Date.now(),
+                description: description,
+                amount: parseFloat(amount),
+                date: date,
+                category: category,
+                type: type,
+                timestamp: new Date().toISOString()
+            };
+            
+            transactions.push(transaction);
+            saveTransactions(transactions);
+            loadTransactions();
+            updateBalance();
+            updateCharts();
+        }
+
+        function deleteTransaction(id) {
+            console.log('Lösche Transaktion:', id);
+            let transactions = getTransactions();
+            transactions = transactions.filter(t => t.id !== parseInt(id));
+            saveTransactions(transactions);
+            loadTransactions();
+            updateBalance();
+            updateCharts();
+        }
+
+        function loadTransactions() {
+            console.log('Lade Transaktionen');
+            const transactions = getTransactions();
+            
+            if (!transactionsList) return;
+            
+            if (transactions.length === 0) {
+                transactionsList.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Noch keine Transaktionen vorhanden. Fügen Sie Ihre erste Transaktion hinzu!</p>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            transactionsList.innerHTML = transactions.map(transaction => {
+                const sign = transaction.type === 'income' ? '+' : '-';
+                const colorClass = transaction.type;
+                return `
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <h4>${transaction.description}</h4>
+                            <p>${formatDate(transaction.date)} • ${transaction.category}</p>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="transaction-amount ${colorClass}">
+                                ${sign}${formatCurrency(transaction.amount)}
+                            </span>
+                            <button class="delete-btn" onclick="deleteTransaction(${transaction.id})">×</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateBalance() {
+            console.log('Aktualisiere Saldo');
+            const transactions = getTransactions();
+            
+            let income = 0;
+            let expense = 0;
+
+            transactions.forEach(transaction => {
+                if (transaction.type === 'income') {
+                    income += transaction.amount;
+                } else {
+                    expense += transaction.amount;
+                }
+            });
+
+            const balance = income - expense;
+
+            if (balanceAmount) balanceAmount.textContent = formatCurrency(balance);
+            if (totalIncome) totalIncome.textContent = formatCurrency(income);
+            if (totalExpense) totalExpense.textContent = formatCurrency(expense);
+        }
+
+        function updateCharts() {
+            console.log('Aktualisiere Diagramme');
+            const transactions = getTransactions();
+            
+            // Simple text-based charts for GitHub Pages compatibility
+            const incomeExpenseChart = document.getElementById('incomeExpenseChart');
+            const categoriesChart = document.getElementById('categoriesChart');
+            
+            if (incomeExpenseChart) {
+                let income = 0;
+                let expense = 0;
+                
+                transactions.forEach(t => {
+                    if (t.type === 'income') income += t.amount;
+                    else expense += t.amount;
+                });
+                
+                if (income > 0 || expense > 0) {
+                    incomeExpenseChart.innerHTML = `
+                        <div style="text-align: center; padding: 50px;">
+                            <div style="margin-bottom: 20px;">
+                                <strong style="color: #27ae60;">Einnahmen: ${formatCurrency(income)}</strong>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                <strong style="color: #e74c3c;">Ausgaben: ${formatCurrency(expense)}</strong>
+                            </div>
+                            <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                                <strong>Saldo: ${formatCurrency(income - expense)}</strong>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            if (categoriesChart) {
+                const categoryData = {};
+                transactions.filter(t => t.type === 'expense').forEach(t => {
+                    if (!categoryData[t.category]) categoryData[t.category] = 0;
+                    categoryData[t.category] += t.amount;
+                });
+                
+                if (Object.keys(categoryData).length > 0) {
+                    const categoryHtml = Object.entries(categoryData)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([category, amount]) => `
+                            <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee;">
+                                <span>${category}</span>
+                                <strong>${formatCurrency(amount)}</strong>
+                            </div>
+                        `).join('');
+                    
+                    categoriesChart.innerHTML = `
+                        <div style="max-height: 250px; overflow-y: auto;">
+                            ${categoryHtml}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Event listeners
+        if (showRegister) {
+            showRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                showRegisterForm();
+            });
+        }
+
+        if (showLogin) {
+            showLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                showLoginForm();
+            });
+        }
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
+                if (login(username, password)) {
+                    clearErrors();
+                } else {
+                    showError(loginError, 'Ungültiger Benutzername oder Passwort');
+                }
+            });
+        }
+
+        if (registerForm) {
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('registerUsername').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                
+                const result = register(username, password);
+                if (result.success) {
+                    clearErrors();
+                } else {
+                    showError(registerError, result.message);
+                }
+            });
+        }
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', logout);
+        }
+
+        if (transactionForm) {
+            transactionForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const description = document.getElementById('description').value;
+                const amount = document.getElementById('amount').value;
+                const date = document.getElementById('date').value;
+                const category = document.getElementById('category').value;
+                const type = document.getElementById('type').value;
+
+                addTransaction(description, amount, date, category, type);
+                
+                // Reset form
+                transactionForm.reset();
+                if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+            });
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM geladen, initialisiere App');
+            
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                console.log('Benutzer bereits angemeldet:', currentUser);
+                showMainApp();
+            } else {
+                console.log('Kein Benutzer angemeldet, zeige Login');
+                if (authModal) authModal.style.display = 'flex';
+                if (mainApp) mainApp.style.display = 'none';
+                showLoginForm();
+            }
+        });
+
+        // Make deleteTransaction globally available
+        window.deleteTransaction = deleteTransaction;
+        
+        console.log('Finance Tracker JavaScript geladen');
+    </script>
+</body>
+</html>
