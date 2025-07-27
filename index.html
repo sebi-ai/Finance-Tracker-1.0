@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script>
+        // Fallback CSS loading
+        document.addEventListener('DOMContentLoaded', function() {
+            // Test if CSS loaded
+            var testEl = document.createElement('div');
+            testEl.className = 'sidebar';
+            testEl.style.position = 'absolute';
+            testEl.style.visibility = 'hidden';
+            document.body.appendChild(testEl);
+            
+            var computed = window.getComputedStyle(testEl);
+            if (computed.backgroundColor === 'rgba(0, 0, 0, 0)' || computed.backgroundColor === 'transparent') {
+                // CSS didn't load, try alternative path
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'css/style.css';
+                document.head.appendChild(link);
+            }
+            document.body.removeChild(testEl);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div id="auth-modal" class="auth-modal" style="display: flex;">
+      <div class="auth-modal-content">
+        <h2 id="auth-title">Login</h2>
+        <form id="login-form">
+          <div class="form-control">
+            <label for="login-username">Username</label>
+            <input type="text" id="login-username" required autocomplete="username">
+          </div>
+          <div class="form-control">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn">Login</button>
+          <p style="margin-top:10px;">No account? <a href="#" id="show-register">Register here</a></p>
+          <div id="login-error" style="color:red; margin-top:8px; display:none;"></div>
+        </form>
+        <form id="register-form" style="display:none;">
+          <div class="form-control">
+            <label for="register-username">Username</label>
+            <input type="text" id="register-username" required autocomplete="username">
+          </div>
+          <div class="form-control">
+            <label for="register-password">Password</label>
+            <input type="password" id="register-password" required autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn">Register</button>
+          <p style="margin-top:10px;">Already have an account? <a href="#" id="show-login">Login here</a></p>
+          <div id="register-error" style="color:red; margin-top:8px; display:none;"></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main App Layout -->
+    <div class="main-layout" style="display:none;" id="main-app">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">📚</span>
+                <span class="sidebar-title">Finance Tracker</span>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="#overview" class="sidebar-link active" data-section="overview"><span class="sidebar-logo">💶</span><span class="sidebar-link-text">Overview</span></a></li>
+                <li><a href="#transactions" class="sidebar-link" data-section="transactions"><span class="sidebar-logo">📄</span><span class="sidebar-link-text">Transactions</span></a></li>
+                <li><a href="#charts" class="sidebar-link" data-section="charts"><span class="sidebar-logo">📊</span><span class="sidebar-link-text">Charts</span></a></li>
+                <li><a href="#settings" class="sidebar-link" data-section="settings"><span class="sidebar-logo">⚙️</span><span class="sidebar-link-text">Settings</span></a></li>
+                <li><a href="#logout" class="sidebar-link" id="logout-btn"><span class="sidebar-logo">🚪</span><span class="sidebar-link-text">Logout</span></a></li>
+            </ul>
+        </nav>
+        <div class="container main-content">
+            <section id="overview" class="section">
+                <header>
+                    <h1>Finance Tracker</h1>
+                    <div class="balance-container">
+                        <h2>Current Balance</h2>
+                        <div class="balance" id="balance">$0.00</div>
+                        <div class="summary">
+                            <div class="income">
+                                <h4>Income</h4>
+                                <p id="income-total">$0.00</p>
+                            </div>
+                            <div class="expense">
+                                <h4>Expenses</h4>
+                                <p id="expense-total">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            </section>
+            <section id="transactions" class="section" style="display:none;">
+                <div class="add-transaction">
+                    <h3>Add New Transaction</h3>
+                    <form id="transaction-form">
+                        <div class="form-control">
+                            <label for="description">Description</label>
+                            <input type="text" id="description" placeholder="Enter description" required>
+                        </div>
+                        <div class="form-control">
+                            <label for="amount">Amount</label>
+                            <input type="number" id="amount" placeholder="Enter amount" step="0.01" required>
+                        </div>
+                        <div class="form-control">
+                            <label for="date">Date</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-control">
+                            <label for="category">Category</label>
+                            <select id="category" required>
+                                <option value="">-- Please select --</option>
+                                <option value="salary">Salary</option>
+                                <option value="bonus">Bonus</option>
+                                <option value="rent">Rent</option>
+                                <option value="groceries">Groceries</option>
+                                <option value="transport">Transport</option>
+                                <option value="leisure">Leisure</option>
+                                <option value="health">Health</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label for="type">Type</label>
+                            <select id="type" required>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Add</button>
+                    </form>
+                </div>
+                <div class="transactions">
+                    <h3>Transactions</h3>
+                    <div class="filters">
+                        <label for="filter-category">Filter by category:</label>
+                        <select id="filter-category">
+                            <option value="all">All Categories</option>
+                            <option value="salary">Salary</option>
+                            <option value="bonus">Bonus</option>
+                            <option value="rent">Rent</option>
+                            <option value="groceries">Groceries</option>
+                            <option value="transport">Transport</option>
+                            <option value="leisure">Leisure</option>
+                            <option value="health">Health</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <label for="filter-type">Filter by type:</label>
+                        <select id="filter-type">
+                            <option value="all">All Types</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                        <label for="filter-month">Filter by month:</label>
+                        <select id="filter-month">
+                            <option value="all">All Months</option>
+                            <!-- JavaScript will fill these options dynamically -->
+                        </select>
+                    </div>
+                    <ul id="transaction-list" class="list">
+                        <!-- Transactions will be inserted here dynamically -->
+                    </ul>
+                </div>
+            </section>
+            <section id="charts" class="section" style="display:none;">
+                <div class="charts">
+                    <h3>Financial Overview</h3>
+                    <div class="chart-container">
+                        <h4>Expenses by Category</h4>
+                        <canvas id="expense-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Income vs. Expenses</h4>
+                        <canvas id="income-expense-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Monthly Trend</h4>
+                        <canvas id="monthly-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+            <section id="settings" class="section" style="display:none;">
+                <div class="settings-container">
+                    <h3>Settings</h3>
+                    <div class="settings-block">
+                        <label for="new-category">Add New Category:</label>
+                        <input type="text" id="new-category" placeholder="Category name">
+                        <div style="margin-top: 20px;">
+                            <button id="add-category-btn" class="btn add-category-btn">Add</button>
+                        </div>
+                    </div>
+                    <div class="settings-block">
+                        <h4>Current Categories:</h4>
+                        <ul id="category-list" class="category-list"></ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+    <script src="./js/app.js"></script>
+    <script>
+        // Fallback JavaScript loading
+        if (typeof getCurrentUser === 'undefined') {
+            console.log('Primary JS not loaded, trying fallback...');
+            var script = document.createElement('script');
+            script.src = 'js/app.js';
+            document.head.appendChild(script);
+        }
+    </script>
+</body>
+</html>

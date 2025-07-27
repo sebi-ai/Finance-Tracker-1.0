@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker - Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .auth-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .form-control {
+            margin: 15px 0;
+        }
+        .form-control label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .main-app {
+            display: none;
+            padding: 20px;
+        }
+        .welcome {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="auth-modal" class="auth-modal" style="display: flex;">
+        <div class="auth-modal-content">
+            <h2 id="auth-title">Login</h2>
+            <form id="login-form">
+                <div class="form-control">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" required>
+                </div>
+                <div class="form-control">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <p style="margin-top:10px;">No account? <a href="#" id="show-register">Register here</a></p>
+                <div id="login-error" class="error"></div>
+            </form>
+            <form id="register-form" style="display:none;">
+                <div class="form-control">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" required>
+                </div>
+                <div class="form-control">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <button type="submit" class="btn">Register</button>
+                <p style="margin-top:10px;">Already have an account? <a href="#" id="show-login">Login here</a></p>
+                <div id="register-error" class="error"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="main-app">
+        <div class="welcome">
+            <h1>Welcome to Finance Tracker!</h1>
+            <p>You have successfully logged in.</p>
+            <p id="current-user"></p>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple authentication system
+        const authModal = document.getElementById('auth-modal');
+        const mainApp = document.getElementById('main-app');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const showRegister = document.getElementById('show-register');
+        const showLogin = document.getElementById('show-login');
+
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('users') || '{}');
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        function setCurrentUser(username) {
+            localStorage.setItem('currentUser', username);
+        }
+
+        function getCurrentUser() {
+            return localStorage.getItem('currentUser');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            mainApp.style.display = 'none';
+            authModal.style.display = 'flex';
+            showLoginForm();
+        }
+
+        function showLoginForm() {
+            loginForm.style.display = '';
+            registerForm.style.display = 'none';
+            document.getElementById('auth-title').textContent = 'Login';
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('register-error').style.display = 'none';
+        }
+
+        function showRegisterForm() {
+            loginForm.style.display = 'none';
+            registerForm.style.display = '';
+            document.getElementById('auth-title').textContent = 'Register';
+            document.getElementById('login-error').style.display = 'none';
+            document.getElementById('register-error').style.display = 'none';
+        }
+
+        // Event listeners
+        showRegister.addEventListener('click', e => {
+            e.preventDefault();
+            showRegisterForm();
+        });
+
+        showLogin.addEventListener('click', e => {
+            e.preventDefault();
+            showLoginForm();
+        });
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const users = getUsers();
+            
+            console.log('Login attempt:', username, 'Users:', users);
+            
+            if (users[username] && users[username] === password) {
+                setCurrentUser(username);
+                authModal.style.display = 'none';
+                mainApp.style.display = 'block';
+                document.getElementById('current-user').textContent = 'Logged in as: ' + username;
+            } else {
+                const errorDiv = document.getElementById('login-error');
+                errorDiv.textContent = 'Invalid username or password.';
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value;
+            
+            if (!username || !password) {
+                const errorDiv = document.getElementById('register-error');
+                errorDiv.textContent = 'Please enter a username and password.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            const users = getUsers();
+            if (users[username]) {
+                const errorDiv = document.getElementById('register-error');
+                errorDiv.textContent = 'Username already exists.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            users[username] = password;
+            saveUsers(users);
+            setCurrentUser(username);
+            authModal.style.display = 'none';
+            mainApp.style.display = 'block';
+            document.getElementById('current-user').textContent = 'Logged in as: ' + username;
+        });
+
+        // Check if user is already logged in
+        window.addEventListener('DOMContentLoaded', function() {
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                authModal.style.display = 'none';
+                mainApp.style.display = 'block';
+                document.getElementById('current-user').textContent = 'Logged in as: ' + currentUser;
+            } else {
+                authModal.style.display = 'flex';
+                mainApp.style.display = 'none';
+                showLoginForm();
+            }
+        });
+    </script>
+</body>
+</html>
